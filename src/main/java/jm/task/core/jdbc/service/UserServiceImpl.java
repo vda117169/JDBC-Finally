@@ -24,8 +24,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<User> getAllUsers() {
-         hibernate.getAllUsers();
-        return null;
+        return hibernate.getAllUsers();
+
     }
 
     public void cleanUsersTable() {

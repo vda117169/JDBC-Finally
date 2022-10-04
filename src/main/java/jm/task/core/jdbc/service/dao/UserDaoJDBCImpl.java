@@ -39,7 +39,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
 
         try (
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (name,LastName,age) VALUES (?, ?, ?)")) {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO user (name,LastName,age) VALUES (?, ?, ?)")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
@@ -51,7 +51,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void removeUserById(long id) {
         try (
-             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = ?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM user WHERE id = ?")) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (Exception e) {
@@ -60,21 +60,26 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public List<User> getAllUsers() {
-        List<User> user = new ArrayList<>();
-        try (
-             Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("select * from users");
+        List<User> users = new ArrayList<>();
+        try {
+             Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select * from User");
             while (resultSet.next()) {
-                String name = resultSet.getString("name");
-                String lastName = resultSet.getString("lastName");
-                Byte age = resultSet.getByte("age");
-                user.add(new User(name, lastName, age));
+                User user = new User();
+                user.setName(resultSet.getString("name"));
+                user.setLastName(resultSet.getString("lastName"));
+                user.setAge(resultSet.getByte("age"));
+//                String name = resultSet.getString("name");
+//                String lastName = resultSet.getString("lastName");
+//                Byte age = resultSet.getByte("age");
+                //users.add(new User(name, lastName, age));
+                users.add(user);
             }
-            System.out.println(user.toString());
+            System.out.println(users.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return user;
+        return users;
     }
 
     public void cleanUsersTable() {
