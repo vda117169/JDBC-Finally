@@ -1,4 +1,4 @@
-package jm.task.core.jdbc.service.dao;
+package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
@@ -11,32 +11,35 @@ public class UserDaoJDBCImpl implements UserDao {
     private static Connection connection;
     public UserDaoJDBCImpl() {
         connection = Util.getConnect();
-        System.out.println("Connection successful!");
 
     }
 
-    public void createUsersTable() {
+    public void createUsersTable() throws SQLException {
         String createTable= "CREATE TABLE User (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(40), lastName VARCHAR(40), age INT(20))";
 
         try (
              Statement statement = connection.createStatement()) {
             statement.executeUpdate(createTable);
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
+            connection.rollback();
         }
     }
 
-    public void dropUsersTable() {
+    public void dropUsersTable() throws SQLException {
         String dropTable="DROP TABLE User";
         try (
              Statement statement = connection.createStatement()) {
             statement.executeUpdate(dropTable);
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
+            connection.rollback();
         }
     }
 
-    public void saveUser(String name, String lastName, byte age) {
+    public void saveUser(String name, String lastName, byte age) throws SQLException {
 
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO user (name,LastName,age) VALUES (?, ?, ?)")) {
@@ -44,22 +47,26 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
+            connection.rollback();
         }
     }
 
-    public void removeUserById(long id) {
+    public void removeUserById(long id) throws SQLException {
         try (
              PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM user WHERE id = ?")) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
+            connection.rollback();
         }
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
         try {
              Statement statement = connection.createStatement();
@@ -69,26 +76,26 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setName(resultSet.getString("name"));
                 user.setLastName(resultSet.getString("lastName"));
                 user.setAge(resultSet.getByte("age"));
-//                String name = resultSet.getString("name");
-//                String lastName = resultSet.getString("lastName");
-//                Byte age = resultSet.getByte("age");
-                //users.add(new User(name, lastName, age));
                 users.add(user);
             }
             System.out.println(users.toString());
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
+            connection.rollback();
         }
         return users;
     }
 
-    public void cleanUsersTable() {
+    public void cleanUsersTable() throws SQLException {
         String clean="TRUNCATE TABLE User";
-        try (
-             Statement statement = connection.createStatement()) {
+        try {
+             Statement statement = connection.createStatement();
             statement.executeUpdate(clean);
-        } catch (Exception e) {
+            connection.commit();
+        } catch (SQLException e) {
             e.printStackTrace();
+            connection.rollback();
         }
     }
     }
