@@ -2,35 +2,36 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    private static Session session;
-    private static Transaction tx;
+    private SessionFactory sessionFactory = Util.getSessionFactory();
+    private Transaction transaction;
 
     public UserDaoHibernateImpl() {
-        session = Util.getSessionFactory().openSession();
+
     }
 
 
     @Override
     public void createUsersTable() {
-        String createTable = "CREATE TABLE User (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20), lastName VARCHAR(20), age INT(10))";
         try {
-            tx = session.beginTransaction();
-            Query createTable1 = session.createSQLQuery(createTable);
-            createTable1.executeUpdate();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx!=null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
+
+            Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            Query query = session.createSQLQuery("CREATE TABLE IF NOT EXISTS users " +
+                    "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    "name VARCHAR(50) NOT NULL, lastName VARCHAR(50) NOT NULL, " +
+                    "age TINYINT NOT NULL)");
+            query.executeUpdate();
+            transaction.commit();
+        } catch (Exception e){
+
+        }finally {
+            sessionFactory.close();
         }
 
     }
@@ -38,87 +39,80 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        String dropTable="DROP TABLE User";
         try {
-            tx = session.beginTransaction();
-            Query query = session.createSQLQuery(dropTable);
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            Query query = session.createSQLQuery("DROP TABLE IF EXISTS users");
             query.executeUpdate();
-            tx.commit();
+            transaction.commit();
         } catch (Exception e) {
-            if (tx!=null) {
-                tx.rollback();
-            }
             e.printStackTrace();
+        }finally {
+            sessionFactory.close();
         }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        //String addUser = "INSERT User (name, lastName, age) VALUES ('" + name + "', '" + lastName + "', " + age +")";
         try {
-            tx = session.beginTransaction();
-            //Query query1 = session.createSQLQuery(addUser);
-            // query1.executeUpdate();
-            //User user = new User();
-            // user.setName(name);
-            // user.setLastName(lastName);
-            // user.setAge(age);
+            Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
             session.save(new User(name, lastName, age));
-            tx.commit();
-        } catch (Exception e) {
-            if (tx!=null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
+            System.out.println("User с именем – " + name + " добавлен в базу данных ");
+            transaction.commit();
+        } catch (HibernateException e) {
+            transaction.rollback();
+        }finally {
+            sessionFactory.close();
         }
     }
 
     @Override
     public void removeUserById(long id) {
         try {
-            tx = session.beginTransaction();
-            User user = (User) session.load(User.class, id);
+            Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, id);
             session.delete(user);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx!=null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
+            transaction.commit();
+        } catch (HibernateException e) {
+            transaction.rollback();
+        }finally {
+            sessionFactory.close();
         }
     }
 
     @Override
     public List<User> getAllUsers() {
-        List<User> list = new ArrayList<>();
+        List<User> users = new ArrayList<>();
         try {
-            tx = session.beginTransaction();
-            String query = "select p from " + User.class.getSimpleName() + " p";
-            list = (List<User>) session.createQuery(query).list();
-            System.out.println(list);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx!=null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
+            Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            users = (List<User>) session.createQuery("From User").list();
+            System.out.println(users);
+            transaction.commit();
+
+        } catch (HibernateException e) {
+            transaction.rollback();
+        }finally {
+            sessionFactory.close();
         }
-        return list;
+
+        return users;
     }
 
     @Override
     public void cleanUsersTable() {
-        String q = "DELETE FROM User";
         try {
-            tx = session.beginTransaction();
-            Query query = session.createSQLQuery(q);
+            Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            Query query = session.createSQLQuery("TRUNCATE TABLE users");
             query.executeUpdate();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
+            transaction.commit();
+        } catch (HibernateException e) {
             e.printStackTrace();
+        }finally {
+            sessionFactory.close();
         }
     }
 }
