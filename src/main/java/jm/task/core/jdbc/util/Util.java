@@ -22,44 +22,45 @@ public class Util {
         Connection connection = null;
         Driver driver;
 
-            try {
-                driver = new com.mysql.cj.jdbc.Driver();
-                DriverManager.deregisterDriver(driver);
+        try {
+            driver = new com.mysql.cj.jdbc.Driver();
+            DriverManager.deregisterDriver(driver);
 
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-                connection.setAutoCommit(false);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return connection;
+            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return connection;
+    }
+
     public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-            try {
-                Configuration configuration = new Configuration();
+        SessionFactory sessionFactory = null;
+        try {
 
-                Properties settings = new Properties();
-                settings.put(Environment.URL, URL);
-                settings.put(Environment.USER, USERNAME);
-                settings.put(Environment.PASS, PASSWORD);
-                settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
-                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-                settings.put(Environment.HBM2DDL_AUTO, "create-drop");
+            Configuration configuration = new Configuration();
 
-                configuration.setProperties(settings);
-                configuration.addAnnotatedClass(User.class);
+            Properties settings = new Properties();
+            settings.put(Environment.URL, URL);
+            settings.put(Environment.USER, USERNAME);
+            settings.put(Environment.PASS, PASSWORD);
+            settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
+            settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+            settings.put(Environment.HBM2DDL_AUTO, "create-drop");
 
-                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                        .applySettings(configuration.getProperties()).build();
+            configuration.setProperties(settings);
+            configuration.addAnnotatedClass(User.class);
 
-                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties()).build();
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+
         return sessionFactory;
     }
-    }
+}
