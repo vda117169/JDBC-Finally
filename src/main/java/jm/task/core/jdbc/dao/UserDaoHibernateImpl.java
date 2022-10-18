@@ -12,14 +12,12 @@ public class UserDaoHibernateImpl implements UserDao {
     private Transaction transaction;
 
     public UserDaoHibernateImpl() {
-
     }
 
 
     @Override
     public void createUsersTable() {
         try {
-
             Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
             Query query = session.createSQLQuery("CREATE TABLE IF NOT EXISTS users " +
@@ -28,9 +26,9 @@ public class UserDaoHibernateImpl implements UserDao {
                     "age TINYINT NOT NULL)");
             query.executeUpdate();
             transaction.commit();
-        } catch (Exception e){
-
-        }finally {
+        } catch (Exception e) {
+            transaction.rollback();
+        } finally {
             sessionFactory.close();
         }
 
@@ -47,7 +45,8 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+            transaction.rollback();
+        } finally {
             sessionFactory.close();
         }
     }
@@ -62,7 +61,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
         } catch (HibernateException e) {
             transaction.rollback();
-        }finally {
+        } finally {
             sessionFactory.close();
         }
     }
@@ -77,7 +76,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
         } catch (HibernateException e) {
             transaction.rollback();
-        }finally {
+        } finally {
             sessionFactory.close();
         }
     }
@@ -94,7 +93,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
         } catch (HibernateException e) {
             transaction.rollback();
-        }finally {
+        } finally {
             sessionFactory.close();
         }
 
@@ -111,7 +110,8 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
         } catch (HibernateException e) {
             e.printStackTrace();
-        }finally {
+            transaction.rollback();
+        } finally {
             sessionFactory.close();
         }
     }

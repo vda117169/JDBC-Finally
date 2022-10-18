@@ -10,7 +10,6 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-
     }
 
     public void dropUsersTable() {
@@ -20,15 +19,12 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-
     }
 
     public List<User> getAllUsers() {
-
         return null;
     }
 
     public void cleanUsersTable() {
-
     }
-    }
+}

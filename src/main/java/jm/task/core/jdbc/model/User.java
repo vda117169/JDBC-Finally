@@ -4,20 +4,20 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table (name="user")
+@Table(name = "user")
 public class User {
     @Id
-    @Column(name="id")
-    @GeneratedValue (strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column (name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column (name="lastname")
+    @Column(name = "lastname")
     private String lastName;
 
-    @Column (name="age")
+    @Column(name = "age")
     private Byte age;
 
     public User() {
@@ -71,6 +71,7 @@ public class User {
                 ", age = " + age +
                 ')';
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,6 +81,7 @@ public class User {
                 lastName.equals(user.lastName) &&
                 age.equals(user.age);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(name, lastName, age);
